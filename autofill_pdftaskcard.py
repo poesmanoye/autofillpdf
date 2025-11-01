@@ -10,8 +10,8 @@ st.set_page_config(page_title="TASKCARD AUTOFILL TKG", page_icon="logo.png", lay
 
 # --- Header ---
 st.markdown("""
-    <h1 style='text-align:center; color: #FFFFFF;'>TASKCARD LINE MAINTENANCE TKG</h1>
-    <p style='text-align:center; color:#00FFFF;'>Task Card Daily And Pre-Flight For Boeing 737 NG or Airbus A320</p>
+    <h1 style='text-align:center; color:#00FFFF;'>TASKCARD LINE MAINTENANCE TKG</h1>
+    <p style='text-align:center; color:#FFFFFF;'>Task Card Daily And Pre-Flight For Boeing 737 NG or Airbus A320</p>
     <hr>
 """, unsafe_allow_html=True)
 
@@ -31,7 +31,7 @@ start_page -= 1  # index mulai dari 0
 
 # --- Form input data ---
 with st.form("pdf_form"):
-    st.subheader("ENTER DATA CORRECTLY")
+    st.subheader("✏️ ENTER DATA CORRECTLY")
     col1, col2 = st.columns(2)
     with col1:
         work_order = st.text_input("WORK ORDER NO.")
@@ -68,11 +68,11 @@ if submitted:
         output.write(result)
         result.seek(0)
 
-        # --- Encode hasil PDF ke base64 untuk tombol download & print ---
+        # --- Encode hasil PDF ke base64 ---
         pdf_data = result.getvalue()
-        b64 = base64.b64encode(pdf_data).decode('utf-8')
+        b64 = base64.b64encode(pdf_data).decode("utf-8")
 
-        # --- Tampilan tombol sejajar (CSS) ---
+        # --- CSS untuk tombol ---
         st.markdown("""
             <style>
             .button-row {
@@ -95,10 +95,10 @@ if submitted:
             .button-row a:hover, .button-row button:hover {
                 background-color: #1e40af;
             }
-            .button-row .print-btn {
+            .button-row .preview-btn {
                 background-color: #16a34a;
             }
-            .button-row .print-btn:hover {
+            .button-row .preview-btn:hover {
                 background-color: #15803d;
             }
             </style>
@@ -107,19 +107,30 @@ if submitted:
         # --- Pesan sukses ---
         st.success(f"✅ Berhasil isi otomatis: {template_name} (hal {start_page+1}–{end_page})")
 
-        # --- HTML tombol sejajar (Download + Print) ---
+        # --- Tombol sejajar: Download + Preview ---
         buttons_html = f"""
         <div class="button-row">
             <a href="data:application/pdf;base64,{b64}" 
                download="FINAL_{template_name.replace('.pdf', '')}.pdf">
                ⬇️ DOWNLOAD TASKCARD
             </a>
-            <button class="print-btn" 
-                onclick="var pdfWin = window.open('', '_blank'); 
-                         pdfWin.document.write('<iframe src=\'data:application/pdf;base64,{b64}\' 
-                         width=\'100%\' height=\'100%\'></iframe>'); 
-                         pdfWin.document.close(); pdfWin.focus(); pdfWin.print();">
-                🖨️ PRINT TASKCARD
+            <button class="preview-btn" 
+                onclick="document.getElementById('pdfPreview').scrollIntoView({{behavior:'smooth'}});">
+                🖨️ PREVIEW / PRINT TASKCARD
+            </button>
+        </div>
+
+        <!-- Preview PDF -->
+        <iframe id="pdfPreview" src="data:application/pdf;base64,{b64}" 
+                width="100%" height="700px" 
+                style="border:1px solid #ccc; border-radius:10px; margin-top:20px;"></iframe>
+
+        <!-- Tombol Print -->
+        <div style="text-align:center; margin-top:10px;">
+            <button onclick="window.frames[0].focus(); window.frames[0].print();" 
+                    style="background:#16a34a; color:white; padding:10px 20px; 
+                           border:none; border-radius:8px; font-weight:600; cursor:pointer;">
+                🖨️ CETAK SEKARANG
             </button>
         </div>
         """
@@ -129,4 +140,4 @@ if submitted:
         st.error("⚠️ File template tidak ditemukan. Pastikan semua PDF ada di folder yang sama dengan app.py")
 
 # --- Footer ---
-st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh poesmanoye V1</p>", unsafe_allow_html=True)
+st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh poesmanoye v1</p>", unsafe_allow_html=True)
