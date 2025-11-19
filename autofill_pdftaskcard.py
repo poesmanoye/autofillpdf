@@ -6,19 +6,18 @@ from io import BytesIO
 import base64
 
 # --- Google Analytics ---
-GA_SCRIPT = """
+GA_ID = "G-KFM9JFK212"  # ganti kalau Anda ingin pakai ID lain
+
+st.components.v1.html(f"""
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KFM9JFK212"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
-  gtag('config', 'G-KFM9JFK212');
+  gtag('config', '{GA_ID}');
 </script>
-"""
-
-# Render script ke Streamlit
-st.markdown(GA_SCRIPT, unsafe_allow_html=True)
+""", height=0)
 
 # --- Konfigurasi halaman ---
 st.set_page_config(page_title="TASKCARD LION GROUP", layout="centered")
@@ -360,6 +359,7 @@ else:
 
 # Footer
 st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh nomnom_</p>", unsafe_allow_html=True)
+
 
 
 
