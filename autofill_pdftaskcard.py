@@ -8,6 +8,28 @@ import base64
 # --- Konfigurasi halaman ---
 st.set_page_config(page_title="TASKCARD LION GROUP", layout="centered")
 
+# === LOGIN SYSTEM ===
+PASSWORD = "admin123"
+
+if "auth" not in st.session_state:
+    st.session_state.auth = False
+
+if not st.session_state.auth:
+    st.title("🔐 LOGIN REQUIRED")
+    pwd = st.text_input("Masukkan Password", type="password")
+
+    if st.button("LOGIN", use_container_width=True):
+        if pwd == PASSWORD:
+            st.session_state.auth = True
+            st.success("Login berhasil!")
+            st.rerun()
+        else:
+            st.error("Password salah!")
+
+    st.stop()       # 🔥 stop agar form tidak tampil sebelum login
+# === END LOGIN SYSTEM ===
+
+
 # --- CSS ---
 st.markdown("""
     <style>
@@ -346,4 +368,5 @@ else:
 
 # Footer
 st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh nomnom_</p>", unsafe_allow_html=True)
+
 
