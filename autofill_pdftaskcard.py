@@ -5,21 +5,16 @@ from reportlab.lib.pagesizes import A4
 from io import BytesIO
 import base64
 
-# --- Google Analytics ---
-GA_ID = "G-698CWQL8H1"   # ganti dengan ID kamu
-
-ga_script = f"""
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-698CWQL8H1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
+  function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', '{GA_ID}');
-</script>
-"""
 
-st.markdown(ga_script, unsafe_allow_html=True)
+  gtag('config', 'G-698CWQL8H1');
+</script>
+
 # --- Konfigurasi halaman ---
 st.set_page_config(page_title="TASKCARD LION GROUP", layout="centered")
 
@@ -361,6 +356,7 @@ else:
 
 # Footer
 st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh nomnom_</p>", unsafe_allow_html=True)
+
 
 
 
