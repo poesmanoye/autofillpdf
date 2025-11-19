@@ -142,11 +142,11 @@ else:
             # ======================================================
             valid_prefix = ["MLI", "ETJ", "ILF", "GEF"]
 
-            if operator.upper() == "LION AIR":
+            if "B737" in ac_type.upper():  # Jika tipe pesawat adalah B737
                 if not any(ac_eff.upper().startswith(prefix) for prefix in valid_prefix):
-                    st.error("⚠️ Untuk LION AIR, A/C Effectivity harus diawali MLI, ETJ, ILF, atau GEF.")
+                    st.error("⚠️ Untuk pesawat B737, A/C Effectivity harus diawali MLI, ETJ, ILF, atau GEF.")
                     st.stop()
-            # Operator lain → TIDAK divalidasi
+            # A320 / ATR → tidak divalidasi
 
             # ======================================================
             # 🔸 VALIDASI OPERATOR VS TEMPLATE
@@ -346,5 +346,6 @@ else:
 
 # Footer
 st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh nomnom_</p>", unsafe_allow_html=True)
+
 
 
