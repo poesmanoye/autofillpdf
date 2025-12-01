@@ -5,20 +5,6 @@ from reportlab.lib.pagesizes import A4
 from io import BytesIO
 import base64
 
-# --- Google Analytics ---
-GA_ID = "G-KFM9JFK212"  # ganti kalau Anda ingin pakai ID lain
-
-st.components.v1.html(f"""
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{GA_ID}');
-</script>
-""", height=0)
-
 # --- Konfigurasi halaman ---
 st.set_page_config(page_title="TASKCARD LION GROUP", layout="centered")
 
@@ -36,6 +22,7 @@ st.markdown("""
 def get_base64_of_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
+
 
 # load logo
 logo_base64 = get_base64_of_image("download-removebg-preview.png")
@@ -66,8 +53,8 @@ st.markdown("""
 st.markdown(f"""
     <div class="header-container" style="text-align:center; margin-top:-25px;">
         <img src="data:image/png;base64,{logo_base64}" width="140">
-        <h1>TASKCARD LINE MAINTENANCE </h1>
-        <p>TASKCARD DAILY CHECK, PRE-FLIGHT CHECK, WEEKLY CHECK ON LION GROUP</p>
+        <h1>TASKCARD LINE MAINTENANCE TKG</h1>
+        <p>TASKCARD DAILY CHECK, PRE-FLIGHT CHECK, WEEKLY CHECK AIRBUS A320 AND BOEING 737</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -88,8 +75,8 @@ if st.session_state.show_warning:
         text-align:justify;
         margin-bottom:15px;">
         ⚠️ <b>PERINGATAN:</b> Pastikan 
-        <b><u>REVISI TASKCARD MASING-MASING OPERATOR</u></b> 
-        (LION AIR / BATIK AIR) sudah update sebelum anda melanjutkan pengisian data.
+        <b><u>LAST REVISI TASKCARD MASING-MASING OPERATOR</u></b> 
+        (LION AIR / BATIK AIR / SUPER AIR JET) sudah update sebelum anda melanjutkan pengisian data.
     </div>
     """, unsafe_allow_html=True)
 
@@ -104,14 +91,16 @@ else:
 
     # List Template
     page_ranges = {
+        "TC DAILY CHECK A320 BATIK REV 08.pdf": (1, 27),
+        "TC DAILY CHECK B737 BATIK REV 22.pdf": (1, 18),
+        "TC DAILY CHECK B737 LION REV 39.pdf": (1, 31),
         "TC DAILY CHECK A320 SUPER AIR JET REV 09.pdf": (1, 27),
+        "TC PRE-FLIGHT CHECK A320 BATIK REV 02.pdf": (1, 9),
+        "TC PRE-FLIGHT CHECK B737 BATIK REV 15.pdf": (1, 13),
+        "TC PRE-FLIGHT CHECK B737 LION REV 14.pdf": (1, 9),
         "TC PRE-FLIGHT CHECK A320 SUPER AIR JET REV 01.pdf": (1, 8),
         "TC WEEKLY CHECK A320 SUPER AIR JET REV 10.pdf": (1, 16),
-        "TC DAILY CHECK A320 BATIK REV 08.pdf": (1, 27),
-        "TC PRE-FLIGHT CHECK A320 BATIK REV 02.pdf": (1, 8),
-        "TC WEEKLY CHECK A320 BATIK REV 10.pdf": (1, 16),
-        "TC DAILY CHECK B737 LION REV 39.pdf": (1, 31),
-        "TC PRE-FLIGHT CHECK B737 LION REV 14.pdf": (1, 8),
+        "TC WEEKLY CHECK A320 BATIK REV 10.pdf": (1, 16),      
     }
 
     template_name = st.selectbox("📄 Choose TaskCard", list(page_ranges.keys()), index=3)
@@ -155,11 +144,12 @@ else:
             # ======================================================
             valid_prefix = ["MLI", "ETJ", "ILF", "GEF"]
 
-            # Khusus B737, cek effectivity untuk semua operator Lion / Batik
-            if ac_type.upper() in ["B737-800 NG", "B737-900 ER"] and operator.upper() in ["LION AIR", "BATIK AIR"]:
+            if "B737" in ac_type.upper() and operator.upper() in ["LION AIR", "BATIK AIR"]:
                 if not any(ac_eff.upper().startswith(prefix) for prefix in valid_prefix):
-                    st.error("⚠️ Untuk B737, A/C Effectivity harus diawali MLI, ETJ, ILF, atau GEF.")
+                    st.error("⚠️ Untuk B737 Lion/Batik, A/C Effectivity harus diawali MLI, ETJ, ILF, atau GEF.")
                     st.stop()
+                    
+            # Operator lain → TIDAK divalidasi
 
             # ======================================================
             # 🔸 VALIDASI OPERATOR VS TEMPLATE
@@ -171,6 +161,46 @@ else:
             elif "SUPER AIR JET" in template_name.upper() and "SUPER AIR JET" not in operator.upper():
                 st.error("⚠️ Operator tidak sesuai! Taskcard ini untuk SUPER AIR JET.")
             else:
+
+                # ======================================================
+                # 🔸 VALIDASI A/C TYPE VS TEMPLATE (WAJIB SESUAI PESAWAT)
+                # ======================================================
+
+                # --- B737 BATIK ---
+                if "B737" in template_name and "BATIK" in template_name:
+                    if operator.upper() != "BATIK AIR":
+                        st.error("⚠️ Operator harus BATIK AIR untuk taskcard ini.")
+                        st.stop()
+                    if not ac_type.startswith("B737"):
+                        st.error("⚠️ A/C TYPE harus B737-800 NG atau B737-900 ER untuk taskcard B737 BATIK.")
+                        st.stop()
+                
+                # --- A320 BATIK ---
+                elif "A320" in template_name and "BATIK" in template_name:
+                    if operator.upper() != "BATIK AIR":
+                        st.error("⚠️ Operator harus BATIK AIR untuk taskcard ini.")
+                        st.stop()
+                    if ac_type != "A320":
+                        st.error("⚠️ A/C TYPE harus A320 untuk taskcard A320 BATIK.")
+                        st.stop()
+                
+                # --- B737 LION ---
+                elif "B737" in template_name and "LION" in template_name:
+                    if operator.upper() != "LION AIR":
+                        st.error("⚠️ Operator harus LION AIR untuk taskcard ini.")
+                        st.stop()
+                    if not ac_type.startswith("B737"):
+                        st.error("⚠️ A/C TYPE harus B737 untuk taskcard B737 LION.")
+                        st.stop()
+                
+                # --- A320 SUPER AIR JET ---
+                elif "A320" in template_name and "SUPER AIR JET" in template_name:
+                    if operator.upper() != "SUPER AIR JET":
+                        st.error("⚠️ Operator harus SUPER AIR JET untuk taskcard ini.")
+                        st.stop()
+                    if ac_type != "A320":
+                        st.error("⚠️ A/C TYPE harus A320 untuk taskcard A320 SUPER AIR JET.")
+                        st.stop()
 
                 # ======================================================
                 # PROCESS PDF
@@ -207,7 +237,7 @@ else:
                                     can.drawString(270, 734, ac_eff)
                                     can.drawString(360, 734, operator)
 
-                            # === DAILY BATIK REV 08 ===
+                            # === DAILY BATIK A320 REV 08 ===
                             elif template_name == "TC DAILY CHECK A320 BATIK REV 08.pdf":
                                 if i == start_page:
                                     can.drawString(482, 735, work_order)
@@ -224,7 +254,7 @@ else:
                                     can.drawString(277, 733, ac_eff)
                                     can.drawString(357, 733, operator)
 
-                            # === PRE-FLIGHT BATIK REV 02 ===
+                            # === PRE-FLIGHT A320 BATIK REV 02 ===
                             elif template_name == "TC PRE-FLIGHT CHECK A320 BATIK REV 02.pdf":
                                 if i == start_page:
                                     can.drawString(480, 734, work_order)
@@ -240,8 +270,8 @@ else:
                                     can.drawString(203, 733, ac_msn)
                                     can.drawString(277, 733, ac_eff)
                                     can.drawString(357, 733, operator)
-
-                            # === WEEKLY BATIK REV 10 ===
+                                    
+                            # === WEEKLY A320 BATIK REV 10 ===
                             elif template_name == "TC WEEKLY CHECK A320 BATIK REV 10.pdf":
                                 if i == start_page:
                                     can.drawString(480, 734, work_order)
@@ -258,6 +288,40 @@ else:
                                     can.drawString(277, 733, ac_eff)
                                     can.drawString(357, 733, operator)
 
+                            # === DAILY BATIK 737 REV 22 ==
+                            elif template_name == "TC DAILY CHECK B737 BATIK REV 22.pdf":
+                                if i == start_page:
+                                    can.drawString(480, 734, work_order)
+                                    can.drawString(45, 703, ac_reg)
+                                    can.drawString(118, 703, ac_msn)
+                                    can.drawString(110, 734, ac_eff)
+                                    can.drawString(43, 630, operator)
+                                    can.drawString(120, 630, place)
+                                    can.drawString(34, 734, ac_type)
+                                else:
+                                    can.drawString(66, 733, work_order)
+                                    can.drawString(145, 733, ac_reg)
+                                    can.drawString(203, 733, ac_msn)
+                                    can.drawString(266, 733, ac_eff)
+                                    can.drawString(355, 733, operator)           
+                                    
+                            # === PRE-FLIGHT BATIK 737 REV 15 ==
+                            elif template_name == "TC PRE-FLIGHT CHECK B737 BATIK REV 15.pdf":
+                                if i == start_page:
+                                    can.drawString(480, 734, work_order)
+                                    can.drawString(45, 703, ac_reg)
+                                    can.drawString(118, 703, ac_msn)
+                                    can.drawString(110, 734, ac_eff)
+                                    can.drawString(43, 630, operator)
+                                    can.drawString(120, 630, place)
+                                    can.drawString(34, 734, ac_type)
+                                else:
+                                    can.drawString(66, 733, work_order)
+                                    can.drawString(145, 733, ac_reg)
+                                    can.drawString(203, 733, ac_msn)
+                                    can.drawString(266, 733, ac_eff)
+                                    can.drawString(355, 733, operator)                                   
+
                             # === DAILY SUPER AIR JET ===
                             elif template_name == "TC DAILY CHECK A320 SUPER AIR JET REV 09.pdf":
                                 if i == start_page:
@@ -265,7 +329,7 @@ else:
                                     can.drawString(45, 703, ac_reg)
                                     can.drawString(117, 703, ac_msn)
                                     can.drawString(123, 735, ac_eff)
-                                    can.drawString(40, 636, operator)
+                                    can.drawString(29, 636, operator)
                                     can.drawString(119, 636, place)
                                     can.drawString(51, 735, ac_type)
                                 else:
@@ -282,7 +346,7 @@ else:
                                     can.drawString(47, 702, ac_reg)
                                     can.drawString(118, 702, ac_msn)
                                     can.drawString(123, 734, ac_eff)
-                                    can.drawString(42, 635, operator)
+                                    can.drawString(29, 635, operator)
                                     can.drawString(120, 635, place)
                                     can.drawString(52, 734, ac_type)
                                 else:
@@ -299,7 +363,7 @@ else:
                                     can.drawString(47, 702, ac_reg)
                                     can.drawString(118, 702, ac_msn)
                                     can.drawString(123, 734, ac_eff)
-                                    can.drawString(42, 635, operator)
+                                    can.drawString(29, 635, operator)
                                     can.drawString(120, 635, place)
                                     can.drawString(52, 734, ac_type)
                                 else:
@@ -359,6 +423,21 @@ else:
 
 # Footer
 st.markdown("<hr><p style='text-align:center;color:#94a3b8;'>Dibuat oleh nomnom_</p>", unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
